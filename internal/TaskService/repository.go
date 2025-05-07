@@ -3,10 +3,10 @@ package TaskService
 import "gorm.io/gorm"
 
 type RequestBodyRepository interface {
-	CreateTask(task RequestBody) error
+	CreateTask(req RequestBody) error
 	GetAllTasks() ([]RequestBody, error)
 	GetTaskByID(id string) (RequestBody, error)
-	UpdateTask(task RequestBody) error
+	UpdateTask(req RequestBody) error
 	DeleteTaskByID(id string) error
 }
 
@@ -18,9 +18,12 @@ func NewRepository(db *gorm.DB) RequestBodyRepository {
 	return &TaskRepository{db: db}
 }
 
-func (r *TaskRepository) CreateTask(task RequestBody) error {
-
-	return r.db.Create(&task).Error
+func (r *TaskRepository) CreateTask(req RequestBody) error {
+	result := r.db.Create(&req)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
 
 func (r *TaskRepository) GetAllTasks() ([]RequestBody, error) {
@@ -36,8 +39,8 @@ func (r *TaskRepository) GetTaskByID(id string) (RequestBody, error) {
 
 }
 
-func (r *TaskRepository) UpdateTask(task RequestBody) error {
-	return r.db.Save(&task).Error
+func (r *TaskRepository) UpdateTask(req RequestBody) error {
+	return r.db.Save(&req).Error
 }
 
 func (r *TaskRepository) DeleteTaskByID(id string) error {

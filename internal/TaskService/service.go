@@ -1,14 +1,10 @@
 package TaskService
 
-import (
-	"github.com/google/uuid"
-)
-
 type RequestBodyService interface {
-	CreateTask(task string) (RequestBody, error)
+	CreatesTask(task RequestBody) (RequestBody, error)
 	GetAllTasks() ([]RequestBody, error)
 	GetTaskByID(id string) (RequestBody, error)
-	UpdateTask(id string, task string) (RequestBody, error)
+	UpdateTask(id string, body string) (RequestBody, error)
 	DeleteTaskByID(id string) error
 }
 
@@ -20,16 +16,17 @@ func NewTaskService(r RequestBodyRepository) RequestBodyService {
 	return &TaskService{repo: r}
 }
 
-func (s *TaskService) CreateTask(task string) (RequestBody, error) {
+func (s *TaskService) CreatesTask(task RequestBody) (RequestBody, error) {
 	newTask := RequestBody{
-		ID:     uuid.NewString(),
-		Task:   task,
+		Task:   task.Task,
 		IsDone: false,
 	}
+
 	err := s.repo.CreateTask(newTask)
 	if err != nil {
 		return RequestBody{}, err
 	}
+
 	return newTask, nil
 }
 
@@ -41,13 +38,12 @@ func (s *TaskService) GetTaskByID(id string) (RequestBody, error) {
 	return s.repo.GetTaskByID(id)
 }
 
-func (s *TaskService) UpdateTask(id, task string) (RequestBody, error) {
+func (s *TaskService) UpdateTask(id, body string) (RequestBody, error) {
 	tas, err := s.repo.GetTaskByID(id)
 	if err != nil {
 		return tas, err
 	}
-	tas.Task = task
-	tas.ID = id
+	tas.Task = body
 	if err := s.repo.UpdateTask(tas); err != nil {
 		return tas, err
 	}

@@ -23,16 +23,22 @@ func (h *RequestBodyHandlers) GetHandler(c echo.Context) error {
 }
 
 func (h *RequestBodyHandlers) PostHandler(c echo.Context) error {
-	var req *TaskService.RequestBody
+	var req TaskService.RequestBody
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, "Ошибка записи JSON")
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Ошибка записи JSON",
+		})
 	}
-	body, err := h.service.CreateTask(req.Task)
 	if req.Task == "" {
-		return c.JSON(http.StatusBadRequest, "Задача не может быть пустой")
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Задача не может быть пустой",
+		})
 	}
+	body, err := h.service.CreatesTask(req)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Ошибка Сервиса")
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Произошла ошибка при создании задачи",
+		})
 	}
 
 	return c.JSON(http.StatusCreated, body)
